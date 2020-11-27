@@ -13,25 +13,81 @@ servers:
   - url: http://localhost:3010/v0
 
 paths:
-  /dummy:
+  # /dummy:
+  #   get:
+  #     description: Dummy Endpoint
+  #     responses:
+  #       200:
+  #         description: Succesful
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/DummyResponse'
+  #       default:
+  #         description: unexpected error
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/Error'
+  /mail/all/count:
     get:
-      description: Dummy Endpoint
+      description: "Get list of all mailboxes and the number of emails in them"
       responses:
         200:
-          description: Succesful
+          description: "All good"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DummyResponse'
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+                type: array
+                items:
+                  $ref: "#/components/schemas/Mailbox"
 
 components:
   schemas:
+    Mailbox:
+      properties:
+        name:
+          type: string
+        size:
+          type: number
+          format: int32
+        mail:
+          type: array
+          items:
+            $ref: "#/components/schemas/Email"
+    User:
+      properties:
+        id:
+          type: string
+          format: uuid
+        avatar:
+          type: string
+          format: uri
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+    Email:
+      properties:
+        to:
+          $ref: '#/components/schemas/User'
+        from:
+          $ref: '#/components/schemas/User'
+        subject:
+          type: string
+        content: 
+          type: string
+        sent:
+          type: string
+          format: date-time
+        received:
+          type: string
+          format: date-time
+
+
+
+
     Error:
       required:
         - code
