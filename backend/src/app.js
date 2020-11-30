@@ -7,6 +7,7 @@ const path = require('path');
 const OpenApiValidator = require('express-openapi-validator');
 
 const dummy = require('./dummy');
+const emails = require('./email');
 
 const app = express();
 app.use(cors());
@@ -28,6 +29,9 @@ app.use(
 
 app.get('/v0/dummy', dummy.get);
 // Your routes go here
+app.get('/v0/mailbox/summary', emails.getMailboxSummaryRoute);
+app.get('/v0/mailbox/:id', emails.getMailboxByIDRoute);
+app.get('/v0/mail/:id', emails.getEmailByIDRoute);
 
 app.use((err, req, res, next) => {
   res.status(err.status).json({

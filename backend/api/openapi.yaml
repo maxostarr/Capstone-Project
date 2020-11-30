@@ -29,9 +29,9 @@ paths:
   #           application/json:
   #             schema:
   #               $ref: '#/components/schemas/Error'
-  /mail/all/count:
+  /mailbox/summary:
     get:
-      description: "Get list of all mailboxes and the number of emails in them"
+      description: "Get list of all mailboxes and the number of emails in them. Includes 'starred' pseudobox."
       responses:
         200:
           description: "All good"
@@ -40,11 +40,97 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Mailbox"
+                  $ref: "#/components/schemas/MailboxSummary"
+  /mailbox/{id}:
+    get:
+      description: "Get list of all emails in mailbox."
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "ID of mailbox to get"
+      responses:
+        200:
+          description: "All good"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmailSummary"
+        404:
+          description: "Mailbox does not exist"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mailbox/:
+    post:
+      description: "Create new mailbox."
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          required: true
+          description: "Name of mailbox to create"
+      responses:
+        201:
+          description: "Created"
+        409:
+          description: "Mailbox already exists"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mail/{id}:
+    get:
+      description: "Get full email by id."
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "ID of email to get"
+      responses:
+        200:
+          description: "All good"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailFull"
+        404:
+          description: "Email does not exist"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
   schemas:
+    MailboxSummary:
+      additionalProperties: false
+      required:
+        - "name"
+        - "size"
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        size:
+          type: number
+          format: int32
     Mailbox:
+      additionalProperties: false
+      required:
+        - "name"
+        - "size"
+        - "mail"
       properties:
         name:
           type: string
@@ -54,8 +140,13 @@ components:
         mail:
           type: array
           items:
-            $ref: "#/components/schemas/Email"
+            $ref: "#/components/schemas/EmailFull"
     User:
+      additionalProperties: false
+      required:
+        # - "id"
+        - "name"
+        - "email"
       properties:
         id:
           type: string
@@ -68,8 +159,49 @@ components:
         email:
           type: string
           format: email
-    Email:
+    EmailSummary:
+      additionalProperties: false
+      required:
+        - "id"
+        - "to"
+        - "from"
+        - "subject"
+        - "sent"
+        - "received"
+        - "starred"
       properties:
+        id:
+          type: string
+          format: uuid
+        to:
+          $ref: '#/components/schemas/User'
+        from:
+          $ref: '#/components/schemas/User'
+        subject:
+          type: string
+        starred:
+          type: boolean
+        sent:
+          type: string
+          format: date-time
+        received:
+          type: string
+          format: date-time
+    EmailFull:
+      additionalProperties: false
+      required:
+        - "id"
+        - "to"
+        - "from"
+        - "subject"
+        - "content"
+        - "sent"
+        - "starred"
+        - "received"
+      properties:
+        id:
+          type: string
+          format: uuid
         to:
           $ref: '#/components/schemas/User'
         from:
@@ -84,7 +216,8 @@ components:
         received:
           type: string
           format: date-time
-
+        starred:
+          type: boolean
 
 
 
