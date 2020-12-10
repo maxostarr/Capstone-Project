@@ -39,6 +39,7 @@ const getMailboxByIDRoute = async (req, res) => {
   } else {
     mailbox = await getMailboxByID(targetMailboxID, req.user.id);
   }
+  console.log(req.user.id);
   res.contentType('application/json')
       .status(200)
       .json(mailbox||[]);
@@ -94,8 +95,8 @@ const getKnownContactsRoute = async (req, res) => {
 };
 
 const updateUserByIdRoute = async (req, res) => {
-  const {username, avatar} = req.body;
-  const user = await updateUserById(username, avatar, req.user.id);
+  const {username, avatar, showAvatar} = req.body;
+  const user = await updateUserById(username, avatar, showAvatar, req.user.id);
   const accessToken = jwt.sign({
     id: user.id,
     username: user.username,

@@ -15,15 +15,24 @@ import Settings from './components/Settings';
 const useStyles = makeStyles((theme) => ({
   content: {
     marginLeft: theme.spacing(31),
+    width: `calc(100vw - ${theme.spacing(31)})`,
     display: 'flex',
   },
   emails: {
-    width: `calc(100% - ${theme.spacing(75)}px)`,
+    // width: `calc(100% - ${theme.spacing(7)}px)`,
+    width: '50%',
+    overflow: 'scroll',
+    height: `calc(100vh - ${theme.spacing(7)}px)`,
+    minWidth: '20em',
+  },
+  emailsMobile: {
+    // width: `calc(100% - ${theme.spacing(75)}px)`,
     overflow: 'scroll',
     height: `calc(100vh - ${theme.spacing(7)}px)`,
   },
   viewer: {
-    width: `calc(100% - ${theme.spacing(105)}px)`,
+    width: '50%',
+    // width: `calc(100% - ${theme.spacing(105)}px)`,
     overflow: 'scroll',
     height: `calc(100vh - ${theme.spacing(7)}px)`,
   },
@@ -101,7 +110,7 @@ const Home = () => {
               <>
                 <TopBar />
                 <MenuDrawer />
-                <div>
+                <div className={classes.emailsMobile}>
                   <Typography variant="h5" style={{
                     marginTop: 10,
                     marginLeft: '2em',

@@ -15,7 +15,7 @@ import {Paper,
 import {makeStyles} from '@material-ui/core/styles';
 import {ArrowBackIos,
   Save} from '@material-ui/icons';
-// import {useHistory} from 'react-router';
+import {useHistory} from 'react-router';
 import {useContext} from 'react';
 import {emailClient} from '../request';
 import {EmailContext} from '../context';
@@ -47,13 +47,15 @@ const useStyles = makeStyles((theme) => ({
 
 const Settings = () => {
   const {user, setUser, loadUser, setIsSettingsOpen} = useContext(EmailContext);
-  // const history = useHistory();
+  const history = useHistory();
   const classes = useStyles();
   const [newImageOpen, setNewImageOpen] = useState(false);
   const [newImage, setNewImage] = useState('');
   const [showUnsavedChanges, setShowUnsavedChanges] = useState(false);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
+  const [showAvatar, setShowAvatar] = useState(user.showAvatar);
   const [username, setUsername] = useState(user.username);
+
   const goHome = () => setIsSettingsOpen(false);
 
   const openImageDialog = () => setNewImageOpen(true);
@@ -75,12 +77,20 @@ const Settings = () => {
       const {data} = await emailClient.post('/user/update', {
         username,
         avatar: user.avatar,
+        showAvatar,
       });
       window.localStorage.setItem('accessToken',
           data.accessToken);
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const logOut = async () => {
+    await saveChanges();
+    window.localStorage.removeItem('accessToken');
+    setIsSettingsOpen(false);
+    history.push('/login');
   };
 
   const saveChanges = async () =>{
@@ -101,6 +111,12 @@ const Settings = () => {
 
   const updateUsername = (e)=>{
     setUsername(e.target.value);
+    setUnsavedChanges(true);
+  };
+
+  const handleShowAvatarToggle = (e)=>{
+    console.log(e.target.checked);
+    setShowAvatar(e.target.checked);
     setUnsavedChanges(true);
   };
 
@@ -192,8 +208,12 @@ const Settings = () => {
             </div>
           </div>
           <div>
-            <Checkbox /> Show Avatar
+            <Checkbox value={showAvatar} onClick={handleShowAvatarToggle} />
+             Show Avatar
           </div>
+          <Button color="secondary"
+            variant="contained"
+            onClick={logOut}>Log Out</Button>
         </div>
       </Paper>
     </>

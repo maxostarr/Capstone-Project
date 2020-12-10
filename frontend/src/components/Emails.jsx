@@ -44,10 +44,7 @@ const Emails = () => {
     }
   };
 
-  useEffect(async () => {
-    if (!currentMailboxID) {
-      return;
-    }
+  const getEmails = async (currentMailboxID) => {
     try {
       const res = await emailClient.get(`http://localhost:3010/v0/mailbox/by/${currentMailboxID}`);
       const json = res.data;
@@ -87,6 +84,17 @@ const Emails = () => {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  useEffect(async () => {
+    if (!currentMailboxID) {
+      return;
+    }
+    await getEmails(currentMailboxID);
+    // const interval = setInterval(()=>getEmails(currentMailboxID), 15000);
+    // return () => {
+    //   clearInterval(interval);
+    // };
   }, [currentMailboxID, email]);
 
   const filterRegex = RegExp(mailFilter, 'i');
@@ -103,11 +111,11 @@ const Emails = () => {
       })
       .map((email) => (
         <ListItem key={email.id} button
+          selected={email.id===currentEmailID}
           onClick={() => setCurrentEmailID(email.id)}
         >
-
           <ListItemAvatar>
-            <Avatar src={email.from.avatar}>
+            <Avatar src={email.from.showAvatar?email.from.avatar:''}>
               {email.from.name[0]}
             </Avatar>
           </ListItemAvatar>
@@ -151,8 +159,12 @@ const Emails = () => {
       ));
 
   return (
-    <List>
-      {emailList}
+    <List >
+      {emailList.length===0?(
+        <ListItem>
+          <ListItemText primary="nothing here!"/>
+        </ListItem>
+      ):emailList}
     </List>
   );
 };

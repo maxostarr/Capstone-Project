@@ -10,7 +10,8 @@ CREATE TABLE users(
   email VARCHAR(32),
   username VARCHAR(32),
   u_password VARCHAR(128),
-  avatar TEXT
+  avatar TEXT,
+  show_avatar BOOLEAN
 );
 
 DROP TABLE IF EXISTS mailboxes;
@@ -24,11 +25,44 @@ CREATE TABLE mailboxes(
 DROP TABLE IF EXISTS mail;
 CREATE TABLE mail(
   id UUID UNIQUE PRIMARY KEY DEFAULT gen_random_uuid(), 
-  mailbox_id UUID,
+  -- mailbox_id UUID,
   to_user_id UUID,
   from_user_id UUID,
   mail jsonb,
-  FOREIGN KEY (mailbox_id) REFERENCES mailboxes(id) ON DELETE CASCADE,
+  -- FOREIGN KEY (mailbox_id) REFERENCES mailboxes(id) ON DELETE CASCADE,
   FOREIGN KEY (to_user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (from_user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+DROP TABLE IF EXISTS mailToMailbox;
+CREATE TABLE mailToMailbox(
+  -- id UUID UNIQUE PRIMARY KEY DEFAULT gen_random_uuid(), 
+  mailbox_id UUID,
+  -- to_user_id UUID,
+  -- from_user_id UUID,
+  mail_id UUID,
+  FOREIGN KEY (mailbox_id) REFERENCES mailboxes(id) ON DELETE CASCADE,
+  FOREIGN KEY (mail_id) REFERENCES mail(id) ON DELETE CASCADE
+);
+
+DROP TABLE IF EXISTS stars;
+CREATE TABLE stars(
+  -- id UUID UNIQUE PRIMARY KEY DEFAULT gen_random_uuid(), 
+  p_user_id UUID,
+  -- to_user_id UUID,
+  -- from_user_id UUID,
+  mail_id UUID,
+  FOREIGN KEY (p_user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (mail_id) REFERENCES mail(id) ON DELETE CASCADE
+);
+
+DROP TABLE IF EXISTS unread;
+CREATE TABLE unread(
+  -- id UUID UNIQUE PRIMARY KEY DEFAULT gen_random_uuid(), 
+  p_user_id UUID,
+  -- to_user_id UUID,
+  -- from_user_id UUID,
+  mail_id UUID,
+  FOREIGN KEY (p_user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (mail_id) REFERENCES mail(id) ON DELETE CASCADE
 );

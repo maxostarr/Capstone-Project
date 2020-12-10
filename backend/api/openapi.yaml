@@ -297,9 +297,10 @@ components:
     User:
       additionalProperties: false
       required:
-        # - "id"
+        - "id"
         - "name"
         - "email"
+        - "showAvatar"
       properties:
         id:
           type: string
@@ -312,6 +313,9 @@ components:
         email:
           type: string
           format: email
+        showAvatar:
+          type: boolean
+          
     EmailFull:
       additionalProperties: false
       required:
@@ -356,7 +360,13 @@ components:
         - "content"
       properties:
         to:
-          $ref: '#/components/schemas/User'
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+            name:
+              type: string
         subject:
           type: string
         content: 
