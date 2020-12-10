@@ -11,7 +11,9 @@ import {
 import {
   Search, AccountCircle,
   Mail, Menu as MenuIcon,
+  ArrowBackIos, HighlightOff,
 } from '@material-ui/icons';
+// import {useHistory} from 'react-router';
 
 import {EmailContext} from '../context';
 // starter code from https://material-ui.com/components/app-bar/
@@ -46,17 +48,36 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const TopBar = () => {
+  // const history = useHistory();
   const classes = useStyles();
-  const {setIsDrawerOpen, currentMailbox, desktop} = useContext(EmailContext);
+  const {
+    setIsDrawerOpen,
+    currentMailbox,
+    mailFilter,
+    setMailFilter,
+    setIsComposeOpen,
+    searchMode,
+    setSearchMode,
+    setIsSettingsOpen,
+    desktop} = useContext(EmailContext);
+  const openSettings = () => setIsSettingsOpen(true);
   return (
-    <AppBar position="static" className={classes.bar}>
+    <AppBar position={desktop?'fixed':'static'} className={classes.bar}>
       <Toolbar>
         {
           !desktop&&
-          <IconButton onClick={() => setIsDrawerOpen(true)} edge="start"
+          (searchMode&&
+            <IconButton onClick={() => {
+              setSearchMode(false); setMailFilter('');
+            }} edge="start"
             className={classes.menuButton} color="inherit" aria-label="menu">
-            <MenuIcon />
-          </IconButton>||
+              <ArrowBackIos />
+            </IconButton> ||
+            <IconButton onClick={() => setIsDrawerOpen(true)} edge="start"
+              className={classes.menuButton} color="inherit" aria-label="menu">
+              <MenuIcon />
+            </IconButton>
+          ) ||
           <Typography className={classes.menuLabel}>
             {`CSE183 Mail - ${currentMailbox}`}
           </Typography>
@@ -70,6 +91,9 @@ const TopBar = () => {
           placeholder="Search"
           size="small"
           variant="outlined"
+          onClick={()=>setSearchMode(true)}
+          value={mailFilter}
+          onChange={(e)=>setMailFilter(e.target.value)}
           InputProps={{
 
             className: classes.searchInput,
@@ -85,18 +109,34 @@ const TopBar = () => {
           }}
         />
         <div className={classes.grow} />
-        <IconButton
-          edge="start"
-          className={classes.rightButton}
-          color="inherit">
-          <Mail />
-        </IconButton>
-        <IconButton
-          edge="start"
-          // className={classes.menuButton}
-          color="inherit">
-          <AccountCircle />
-        </IconButton>
+        {
+          searchMode&&(
+            <IconButton
+              edge="start"
+              className={classes.rightButton}
+              onClick={()=>setMailFilter('')}
+              color="inherit">
+              <HighlightOff />
+            </IconButton>
+          )||(
+            <>
+              <IconButton
+                edge="start"
+                className={classes.rightButton}
+                onClick={()=>setIsComposeOpen(true)}
+                color="inherit">
+                <Mail />
+              </IconButton>
+              <IconButton
+                edge="start"
+                onClick={openSettings}
+                // className={classes.menuButton}
+                color="inherit">
+                <AccountCircle />
+              </IconButton>
+            </>
+          )
+        }
       </Toolbar>
     </AppBar>
   );

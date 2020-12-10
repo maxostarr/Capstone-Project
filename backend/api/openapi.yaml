@@ -29,6 +29,12 @@ paths:
   #           application/json:
   #             schema:
   #               $ref: '#/components/schemas/Error'
+  /:
+    get:
+      description: "testsing"
+      responses:
+        200:
+          description: "good"
   /mailbox/summary:
     get:
       description: "Get list of all mailboxes and the number of emails in them. Includes 'starred' pseudobox."
@@ -41,7 +47,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/MailboxSummary"
-  /mailbox/{id}:
+  /mailbox/by/{id}:
     get:
       description: "Get list of all emails in mailbox."
       parameters:
@@ -49,6 +55,7 @@ paths:
           name: id
           schema:
             type: string
+            format: uuid
           required: true
           description: "ID of mailbox to get"
       responses:
@@ -59,14 +66,14 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/EmailSummary"
+                  $ref: "#/components/schemas/EmailFull"
         404:
           description: "Mailbox does not exist"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /mailbox/:
+  /mailbox:
     post:
       description: "Create new mailbox."
       parameters:
@@ -85,6 +92,68 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /user/contacts:
+    get:
+      description: "Get known contacts"
+      responses:
+        200:
+          description: "Contacts got"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /user/update:
+    post:
+      description: "Update user info"
+      responses:
+        201:
+          description: "Update Successful"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                  - "accessToken"
+                properties:
+                  accessToken:
+                    type: string
+          
+  /mail/:
+    post:
+      description: "Send email"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailNew"
+      responses:
+        201:
+          description: "Email posted sucesfully"
+  /mail/move:
+    post:
+      description: "Move email by id to mailbox by id"
+      parameters:
+        - in: query
+          name: email
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: "ID of email to move"
+        - in: query
+          name: mailbox
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: "ID of mailbox to move to"
+      responses:
+        201:
+          description: "Email moved sucesfully"
+  
   /mail/{id}:
     get:
       description: "Get full email by id."
@@ -108,6 +177,90 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /mail/star/{id}:
+    get:
+      description: "Set star status of email by ID."
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "ID of email to star"
+        - in: query
+          name: starred
+          schema:
+            type: string
+          required: true
+          description: "Starred state to set to"
+      responses:
+        204:
+          description: "All good"
+        404:
+          description: "Email does not exist"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /mail/unread/{id}:
+    put:
+      description: "Set unread status of email by ID."
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "ID of email to mark read/unread"
+        - in: query
+          name: unread
+          schema:
+            type: string
+          required: true
+          description: "Unread state to set to"
+      responses:
+        204:
+          description: "All good"
+        404:
+          description: "Email does not exist"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/login:
+    post:
+      description: "Login with supplied creds"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - "email"  
+                - "password"  
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: "Successful login"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                  - "accessToken"
+                properties:
+                  accessToken:
+                    type: string
+        401: 
+          description: "No authorization header provided"
+        403:
+          description: "Login unsucessful"
 
 components:
   schemas:
@@ -159,34 +312,6 @@ components:
         email:
           type: string
           format: email
-    EmailSummary:
-      additionalProperties: false
-      required:
-        - "id"
-        - "to"
-        - "from"
-        - "subject"
-        - "sent"
-        - "received"
-        - "starred"
-      properties:
-        id:
-          type: string
-          format: uuid
-        to:
-          $ref: '#/components/schemas/User'
-        from:
-          $ref: '#/components/schemas/User'
-        subject:
-          type: string
-        starred:
-          type: boolean
-        sent:
-          type: string
-          format: date-time
-        received:
-          type: string
-          format: date-time
     EmailFull:
       additionalProperties: false
       required:
@@ -197,6 +322,7 @@ components:
         - "content"
         - "sent"
         - "starred"
+        - "unread"
         - "received"
       properties:
         id:
@@ -210,6 +336,8 @@ components:
           type: string
         content: 
           type: string
+        mailbox: 
+          type: string
         sent:
           type: string
           format: date-time
@@ -218,7 +346,21 @@ components:
           format: date-time
         starred:
           type: boolean
-
+        unread:
+          type: boolean
+    EmailNew:
+      additionalProperties: false
+      required:
+        - "to"
+        - "subject"
+        - "content"
+      properties:
+        to:
+          $ref: '#/components/schemas/User'
+        subject:
+          type: string
+        content: 
+          type: string
 
 
     Error:

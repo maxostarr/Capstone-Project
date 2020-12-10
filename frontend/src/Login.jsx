@@ -1,18 +1,28 @@
-import {Typography,
+import {
+  Typography,
   Container,
   TextField,
   Checkbox,
-  Button} from '@material-ui/core';
+  Button,
+} from '@material-ui/core';
 import {makeStyles} from '@material-ui/core/styles';
-import React from 'react';
-
-const useStyles = makeStyles((theme)=>({
+import React, {useContext, useState} from 'react';
+import axios from 'axios';
+import {EmailContext} from './context';
+const useStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
     // flexDirection: 'column',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  signToggle: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    textDecoration: 'underline',
+    cursor: 'pointer',
   },
   loginBox: {
     display: 'flex',
@@ -31,19 +41,42 @@ const useStyles = makeStyles((theme)=>({
   },
 }));
 
+
 const Login = () => {
+  const [isLogin, setIsLogin] = useState(true);
+  const {loadUser} = useContext(EmailContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const handleSign = async () => {
+    const creds = {email, password};
+    const res = await axios.post(`http://localhost:3010/v0/auth/${isLogin ? 'login' : 'signup'}`, creds);
+    window.localStorage.setItem('accessToken',
+        res.data.accessToken);
+    loadUser();
+  };
   const classes = useStyles();
   return (
     <Container className={classes.container}>
+      <Typography className={classes.signToggle}
+        onClick={() => setIsLogin(!isLogin)}>
+        {!isLogin ? 'Login' : 'Sign Up'}
+      </Typography>
       <Container className={classes.loginBox}>
-        <Typography variant="h1">Login</Typography>
+        <Typography variant="h2">{isLogin ? 'Login' : 'Sign Up'}</Typography>
 
         <TextField className={classes.input}
-          id="outlined-basic" label="Username"
-          type="username" variant="outlined" />
+          id="outlined-basic" label="Email"
+          type="email"
+          inputProps={{
+            type: 'email',
+          }}
+          value={email} onChange={(e) => setEmail(e.target.value)}
+          variant="outlined" />
         <TextField className={classes.input}
           id="outlined-basic" label="Password"
-          type="password" variant="outlined" />
+          type="password"
+          value={password} onChange={(e) => setPassword(e.target.value)}
+          variant="outlined" />
         <Container className={classes.bottom}>
           <Container>
 
@@ -53,9 +86,13 @@ const Login = () => {
               // onChange={handleChange}
               inputProps={{'aria-label': 'primary checkbox'}}
             />
-            <Typography variant="p">Remember me</Typography>
+            <Typography variant="caption" >Remember me</Typography>
           </Container>
-          <Button variant="contained" color="primary">Sign{'\u00a0'}In</Button>
+          <Button
+            onClick={handleSign}
+            variant="contained" color="primary">
+            {isLogin ? 'Login' : 'Sign\u00a0Up'}
+          </Button>
         </Container>
       </Container>
     </Container>

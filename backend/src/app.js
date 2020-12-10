@@ -8,6 +8,7 @@ const OpenApiValidator = require('express-openapi-validator');
 
 const dummy = require('./dummy');
 const emails = require('./email');
+const auth = require('./login');
 
 const app = express();
 app.use(cors());
@@ -28,17 +29,32 @@ app.use(
 );
 
 app.get('/v0/dummy', dummy.get);
+app.get('/v0/', async (req, res) => res.sendStatus(200));
 // Your routes go here
-app.get('/v0/mailbox/summary', emails.getMailboxSummaryRoute);
-app.get('/v0/mailbox/:id', emails.getMailboxByIDRoute);
-app.get('/v0/mail/:id', emails.getEmailByIDRoute);
+app.post('/v0/auth/login', auth.loginRoute);
+app.post('/v0/auth/signup', auth.signUpRoute);
+
+app.get('/v0/mailbox/summary', auth.verifyUser, emails.getMailboxSummaryRoute);
+app.get('/v0/mailbox/by/:id', auth.verifyUser, emails.getMailboxByIDRoute);
+app.get('/v0/mail/:id', auth.verifyUser, emails.getEmailByIDRoute);
+app.get('/v0/mail/star/:id', auth.verifyUser, emails.setStarredByIDRoute);
+
+app.get('/v0/user/contacts', auth.verifyUser, emails.getKnownContactsRoute);
+
+app.put('/v0/mail/unread/:id', auth.verifyUser, emails.setUnreadByIDRoute);
+app.post('/v0/mail', auth.verifyUser, emails.addEmailToSentRoute);
+app.post('/v0/mailbox', auth.verifyUser, emails.addNewMailboxRoute);
+app.post('/v0/mail/move', auth.verifyUser, emails.moveEmailByIDRoute);
+app.post('/v0/user/update', auth.verifyUser, emails.updateUserByIdRoute);
 
 app.use((err, req, res, next) => {
-  res.status(err.status).json({
-    message: err.message,
-    errors: err.errors,
-    status: err.status,
-  });
+  if (err) {
+    res.status(err.status).json({
+      message: err.message,
+      errors: err.errors,
+      status: err.status,
+    });
+  }
 });
 
 module.exports = app;

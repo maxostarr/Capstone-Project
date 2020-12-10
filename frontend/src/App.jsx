@@ -1,9 +1,17 @@
 import React from 'react';
 import {CssBaseline} from '@material-ui/core';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from 'react-router-dom';
+import PropTypes from 'prop-types';
 import './index.css';
-import EmailContextProvider from './context';
-// import Login from './Login';
+import EmailContextProvider, {useEmail} from './context';
+import Login from './Login';
 import Home from './Home';
+// import Settings from './components/Settings';
 
 /**
  * Simple component with no state.
@@ -34,24 +42,61 @@ import Home from './Home';
 function App() {
   // const [dummy, setDummy] = React.useState('');
   return (
-    <EmailContextProvider style={{height: '100%'}}>
-      <CssBaseline />
-      {/* <h3 id='instruction'>
+    <Router>
+
+      <EmailContextProvider style={{height: '100%'}}>
+        <CssBaseline />
+        {/* <h3 id='instruction'>
         Click button to connect to the Backend dummy endpoint</h3>
-      <button
+        <button
         onClick={(event) => {
           getDummy(setDummy);
         }}
-      >
+        >
         Get Dummy
-      </button>
-      <p/>
+        </button>
+        <p/>
       <label>{dummy}</label> */}
-      {/* <Login /> */}
-      <Home/>
-
-    </EmailContextProvider>
+        <Switch>
+          <Route path="/login">
+            <Login />
+          </Route>
+          {/* <PrivateRoute path="/settings">
+            <Settings/>
+          </PrivateRoute> */}
+          <PrivateRoute path="/">
+            <Home/>
+          </PrivateRoute>
+        </Switch>
+      </EmailContextProvider>
+    </Router>
   );
 }
+
+// from https://reactrouter.com/web/example/auth-workflow
+const PrivateRoute = ({children, ...rest}) => {
+  const emailContext = useEmail();
+  return (
+    <Route
+      {...rest}
+      render={({location}) =>
+        emailContext.user ? (
+          children
+        ) : (
+          <Redirect
+            to={{
+              pathname: '/login',
+              state: {from: location},
+            }}
+          />
+        )
+      }
+    />
+  );
+};
+
+PrivateRoute.propTypes = {
+  children: PropTypes.node,
+};
 
 export default App;
