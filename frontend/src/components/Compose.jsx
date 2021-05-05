@@ -103,6 +103,7 @@ const Compose = () => {
 
   useEffect(() => {
     getKnownContacts();
+    return () => setComposeAutofill(null);
   }, []);
 
   const sendEmail = async () => {

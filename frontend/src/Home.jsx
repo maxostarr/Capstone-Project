@@ -3,7 +3,7 @@ import {
   Divider,
 } from '@material-ui/core';
 import {makeStyles} from '@material-ui/core/styles';
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import MenuDrawer from './components/MenuDrawer';
 import TopBar from './components/TopBar';
 import Compose from './components/Compose';
@@ -54,8 +54,10 @@ const Home = () => {
     currentEmailID,
     user,
     desktop,
+    setCurrentMailbox,
     // emailClient,
     currentMailbox} = useContext(EmailContext);
+  useEffect(()=>setCurrentMailbox('inbox'), []);
   return (
     <div>
       {

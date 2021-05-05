@@ -102,6 +102,7 @@ const updateUserByIdRoute = async (req, res) => {
     username: user.username,
     email: user.email,
     avatar: user.avatar || '',
+    showAvatar: user.show_avatar,
   }, jwtsecret);
   res.status(201)
       .contentType('application/json')

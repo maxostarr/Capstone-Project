@@ -425,7 +425,7 @@ const getKnownContacts = async () => {
 
 const getUserByEmail = async (email) => {
   const query = {
-    text: `SELECT id, email, username, avatar,
+    text: `SELECT id, email, username, avatar, show_avatar AS showAvatar,
     u_password AS password FROM users WHERE email=$1 LIMIT 1`,
     values: [email],
   };

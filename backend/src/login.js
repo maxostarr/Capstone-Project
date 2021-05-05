@@ -26,6 +26,7 @@ const loginRoute = async (req, res) => {
     res.sendStatus(403);
     return;
   }
+  console.log(user);
   const valid = await bcrypt.compare(password, user.password);
   if (valid) {
     const accessToken = jwt.sign({
@@ -33,6 +34,7 @@ const loginRoute = async (req, res) => {
       username: user.username,
       email,
       avatar: user.avatar || '',
+      showAvatar: user.showavatar,
     }, jwtsecret);
     res.status(200)
         .contentType('application/json')

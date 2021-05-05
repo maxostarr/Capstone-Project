@@ -55,7 +55,6 @@ const Settings = () => {
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showAvatar, setShowAvatar] = useState(user.showAvatar);
   const [username, setUsername] = useState(user.username);
-
   const goHome = () => setIsSettingsOpen(false);
 
   const openImageDialog = () => setNewImageOpen(true);
@@ -87,7 +86,9 @@ const Settings = () => {
   };
 
   const logOut = async () => {
-    await saveChanges();
+    if (unsavedChanges) {
+      await postChangesToServer();
+    }
     window.localStorage.removeItem('accessToken');
     setIsSettingsOpen(false);
     history.push('/login');
@@ -98,6 +99,7 @@ const Settings = () => {
     setUnsavedChanges(false);
     closeUnsavedChanges();
     loadUser();
+    goHome();
   };
 
   const saveNewImage = () => {
@@ -208,7 +210,7 @@ const Settings = () => {
             </div>
           </div>
           <div>
-            <Checkbox value={showAvatar} onClick={handleShowAvatarToggle} />
+            <Checkbox checked={showAvatar} onClick={handleShowAvatarToggle} />
              Show Avatar
           </div>
           <Button color="secondary"

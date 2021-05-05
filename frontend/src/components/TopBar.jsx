@@ -110,7 +110,7 @@ const TopBar = () => {
         />
         <div className={classes.grow} />
         {
-          searchMode&&(
+          !desktop&&searchMode&&(
             <IconButton
               edge="start"
               className={classes.rightButton}
